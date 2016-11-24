@@ -8,7 +8,7 @@ Contact me by [github:heyderpd](https://github.com/heyderpd). I'll be glad to he
 
 ## Thanks for [npm~lucasmreis](https://www.npmjs.com/~lucasmreis)
 ```javascript
-npm install --save acany
+npm install --save h-sort
 ```
 
 ## Example:
