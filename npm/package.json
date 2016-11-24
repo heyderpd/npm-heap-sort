@@ -1,0 +1,25 @@
+{
+  "license": "MIT",
+  "name": "h-sort",
+  "version": "1.0.0",
+  "description": "simple and fast heap-sort",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [
+    "heap sort",
+    "heap",
+    "sort",
+    "fast",
+    "simple"
+  ],
+  "author": "NPM acany <heyderpd@gmail.com> (http://heyderpd.github.io)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/heyderpd/npm-heap-sort.git"
+  },
+  "bugs": {
+    "url": "https://github.com/heyderpd/npm-heap-sort/issues"
+  },
+  "devDependencies": {},
+  "dependencies": {}
+}
