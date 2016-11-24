@@ -1,48 +1,52 @@
 'use strict';
 
 /*!
- * h-sort
+ * heap-sort
  * Copyright (c) 2016 heyderpd <heyderpd@gmail.com>
  * MIT Licensed
  */
 
 var convertObjectArray = function convertObjectArray(array) {
-  return array.map(function (item) {
-    return {
+  each(array, function (i, item) {
+    array[i] = {
+      index: i,
       value: item,
       father: undefined,
-      children: []
+      children: {}
     };
+  });
+  return array;
+};
+
+var initializeChildrens = function initializeChildrens(scope) {
+  each(scope.list, function (index, father) {
+    index = index * 2;
+    initChild(father, index + 1, scope);
+    initChild(father, index + 2, scope);
   });
 };
 
-var initializeChildren = function initializeChildren(scope) {
-  scope.list.map(function (father, index) {
-    [1, 2].map(function (child) {
-      child = scope.list[index * 2 + child];
-      if (child !== undefined) {
-        child.father = father;
-        father.children.push(child);
-      }
-    });
-  });
+var initChild = function initChild(father, index, scope) {
+  var child = scope.list[index];
+  if (child !== undefined) {
+    child.father = father;
+    father.children[child.index] = child;
+  }
 };
 
 var processModifieds = function processModifieds(scope) {
   var modifieds = scope.modifieds.length;
-  var iterations = 0,
-      last = void 0;
+  var last = void 0;
   while (last = scope.modifieds.pop()) {
-    if (last !== undefined && last.children !== undefined) {
+    if (last !== undefined) {
       testChildren(last, scope);
-      iterations += 1;
+      scope.iterations += 1;
     }
   }
-  scope.iterations += iterations;
 };
 
 var testChildren = function testChildren(father, scope) {
-  father.children.map(function (child) {
+  eachVal(father.children, function (child) {
     if (father.value < child.value) {
       var big = child.value;
       child.value = father.value;
@@ -62,24 +66,18 @@ var changeBigToLast = function changeBigToLast(scope) {
 
     blockChild(last);
     scope.modifieds.push(scope.root);
-    scope.debug ? scope.iterations += 1 : undefined;
+    scope.iterations += 1;
   }
   if (scope.debug) {
-    console.log('=>', scope.iterations - scope.iterationsAll);
+    // console.log('=>', scope.iterations -scope.iterationsAll)
     scope.iterationsAll = scope.iterations;
   }
 };
 
-var blockChild = function blockChild(block) {
-  var father = block.father;
+var blockChild = function blockChild(child) {
+  var father = child.father;
   if (father !== undefined) {
-    (function () {
-      var children = [];
-      father.children.map(function (child) {
-        child !== block ? children.push(child) : undefined;
-      });
-      father.children = children;
-    })();
+    delete father.children[child.index];
   }
 };
 
@@ -95,15 +93,16 @@ var doHeap = function doHeap(scope) {
 };
 
 var revertToArray = function revertToArray(scope) {
-  return scope.list.map(function (item) {
-    return item.value;
+  each(scope.list, function (i, item) {
+    return scope.list[i] = item.value;
   });
+  return scope.list;
 };
 
 var main = function main(array) {
   var debug = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
-  if (array.length === undefined || array.length <= 1) {
+  if (type(array) !== 'array' || array.length <= 1) {
     return array;
   }
   // convert object array
@@ -119,20 +118,26 @@ var main = function main(array) {
     debug: debug,
     crono: undefined
   };
-  scope.crono = scope.debug ? +new Date() : undefined;
+  scope.debug ? scope.crono = +new Date() : undefined;
   // initialize children
-  initializeChildren(scope);
+  initializeChildrens(scope);
   // add all to modified's
-  scope.list.map(function (item) {
+  eachVal(scope.list, function (item) {
     scope.modifieds.push(item);
   });
   // order list processing modified's
-  scope.debug ? console.log('order tree iteration\'s:') : undefined;
   processModifieds(scope);
   // order heap list
   doHeap(scope);
   // revert object to array
   return revertToArray(scope);
 };
+
+var _require = require('pytils'),
+    type = _require.type,
+    hasProp = _require.hasProp,
+    length = _require.length,
+    each = _require.each,
+    eachVal = _require.eachVal;
 
 module.exports = main;

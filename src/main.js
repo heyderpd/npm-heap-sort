@@ -1,55 +1,61 @@
 
 /*!
- * h-sort
+ * heap-sort
  * Copyright (c) 2016 heyderpd <heyderpd@gmail.com>
  * MIT Licensed
  */
 
 const convertObjectArray = array => {
-  return array.map(
-    item => ({
-      value: item,
-      father: undefined,
-      children: []
-      })
-    )
+  each(array,
+    (i, item) => {
+      array[i] = {
+        index: i,
+        value: item,
+        father: undefined,
+        children: {}
+      }
+    })
+  return array
 }
 
-const initializeChildren = scope => {
-  scope.list.map(
-    (father, index) => {
-      [1, 2].map(
-        child => {
-          child = scope.list[index *2 +child]
-          if (child !== undefined) {
-            child.father = father
-            father.children.push(child)
-          }
-        })
-    })
+const initializeChildrens = scope => {
+  each(scope.list,
+    (index, father) => {
+      index = index *2
+      initChild(father, index +1, scope)
+      initChild(father, index +2, scope)
+      })
+}
+
+const initChild = (father, index, scope) => {
+  const child = scope.list[index]
+  if (child !== undefined) {
+    child.father = father
+    father.children[child.index] = child
+  }
 }
 
 const processModifieds = scope => {
   let modifieds = scope.modifieds.length
-  let iterations = 0, last
+  let last
   while (last = scope.modifieds.pop()) {
-    if (last !== undefined && last.children !== undefined) {
+    if (last !== undefined) {
       testChildren(last, scope)
-      iterations += 1
+      scope.iterations += 1
     }
   }
-  scope.iterations += iterations
 }
 
 const testChildren = (father, scope) => {
-  father.children.map(child => {
-    if (father.value < child.value) {
-      const big = child.value
-      child.value = father.value
-      father.value = big
-      scope.modifieds.push(child)
-    }
-  })
+  eachVal(father.children,
+    child => {
+      if (father.value < child.value) {
+        const big = child.value
+        child.value = father.value
+        father.value = big
+        scope.modifieds.push(child)
+      }
+    })
 }
 
 const changeBigToLast = scope => {
@@ -62,25 +68,18 @@ const changeBigToLast = scope => {
 
     blockChild(last)
     scope.modifieds.push(scope.root)
-    scope.debug
-      ? scope.iterations += 1
-      : undefined
+    scope.iterations += 1
   }
   if (scope.debug) {
-    console.log('=>', scope.iterations -scope.iterationsAll)
+    // console.log('=>', scope.iterations -scope.iterationsAll)
     scope.iterationsAll = scope.iterations
   }
 }
 
-const blockChild = block => {
-  const father = block.father
+const blockChild = child => {
+  const father = child.father
   if (father !== undefined) {
-    let children = []
-    father.children.map(
-      child => {
-        child !== block ? children.push(child) : undefined
-      })
-    father.children = children
+    delete father.children[child.index]
   }
 }
 
@@ -96,13 +95,13 @@ const doHeap = scope => {
 }
 
 const revertToArray = scope => {
-  return scope.list.map(
-    item => (item.value)
-    )
+  each(scope.list,
+    (i, item) => (scope.list[i] = item.value))
+  return scope.list
 }
 
 const main = (array, debug = false) => {
-  if (array.length === undefined || array.length <= 1) {
+  if (type(array) !== 'array' || array.length <= 1) {
     return array
   }
   // convert object array
@@ -118,25 +117,24 @@ const main = (array, debug = false) => {
     debug: debug,
     crono: undefined
   }
-  scope.crono = scope.debug
-    ? +new Date()
+  scope.debug
+    ? scope.crono = +new Date()
     : undefined
   // initialize children
-  initializeChildren(scope)
+  initializeChildrens(scope)
   // add all to modified's
-  scope.list.map(
+  eachVal(scope.list,
     item => {
       scope.modifieds.push(item)
     })
   // order list processing modified's
-  scope.debug
-    ? console.log('order tree iteration\'s:')
-    : undefined
   processModifieds(scope)
   // order heap list
   doHeap(scope)
   // revert object to array
   return revertToArray(scope)
 }
+
+const { type, hasProp, length, each, eachVal } = require('pytils')
 
 module.exports = main
