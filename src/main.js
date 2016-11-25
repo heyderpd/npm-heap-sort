@@ -9,13 +9,10 @@ const convertObjectArray = array => {
   return array.map(
     (item, i) =>
       ({
-        index: i,
         value: item,
         father: undefined,
-        children: {
-          keys: {},
-          values: []
-        }
+        broder: undefined,
+        children: []
       })
     )
 }
@@ -23,9 +20,9 @@ const convertObjectArray = array => {
 const initializeChildrens = scope => {
   scope.list.map(
     (father, index) => {
-      index = index *2
+      index = index *2 +1
+      initChild(father, index, scope)
       initChild(father, index +1, scope)
-      initChild(father, index +2, scope)
       })
 }
 
@@ -33,8 +30,8 @@ const initChild = (father, index, scope) => {
   const child = scope.list[index]
   if (child !== undefined) {
     child.father = father
-    father.children.keys[child.index] = father.children.values.length
-    father.children.values.push(child)
+    child.broder = father.children.length === 0 ? 1 : 0
+    father.children.push(child)
   }
 }
 
@@ -50,7 +47,7 @@ const processModifieds = scope => {
 }
 
 const testChildren = (father, scope) => {
-  father.children.values.map(
+  father.children.map(
     child => {
       if (father.value < child.value) {
         const big = child.value
@@ -73,16 +70,19 @@ const changeBigToLast = scope => {
     scope.modifieds.push(scope.root)
     scope.iterations += 1
   }
-  if (scope.debug) {
-    scope.iterationsAll = scope.iterations
-  }
 }
 
 const blockChild = child => {
   const father = child.father
-  if (father !== undefined) {
-    const key = father.children.keys[child.index]
-    delete father.children.values[key]
+  if (father !== undefined && child !== undefined) {
+    const limit = father.children.length
+    switch (limit) {
+      case 2:
+        father.children = [ father.children[child.broder] ]
+      case 1:
+        father.children = []
+      default:
+    }
   }
 }
 
@@ -115,7 +115,6 @@ const main = (array, debug = false) => {
     limit: list.length,
     modifieds: [],
     iterations: 0,
-    iterationsAll: 0,
     debug: debug,
     crono: undefined
   }

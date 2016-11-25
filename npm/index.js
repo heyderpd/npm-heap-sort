@@ -9,22 +9,19 @@
 var convertObjectArray = function convertObjectArray(array) {
   return array.map(function (item, i) {
     return {
-      index: i,
       value: item,
       father: undefined,
-      children: {
-        keys: {},
-        values: []
-      }
+      broder: undefined,
+      children: []
     };
   });
 };
 
 var initializeChildrens = function initializeChildrens(scope) {
   scope.list.map(function (father, index) {
-    index = index * 2;
+    index = index * 2 + 1;
+    initChild(father, index, scope);
     initChild(father, index + 1, scope);
-    initChild(father, index + 2, scope);
   });
 };
 
@@ -32,8 +29,8 @@ var initChild = function initChild(father, index, scope) {
   var child = scope.list[index];
   if (child !== undefined) {
     child.father = father;
-    father.children.keys[child.index] = father.children.values.length;
-    father.children.values.push(child);
+    child.broder = father.children.length === 0 ? 1 : 0;
+    father.children.push(child);
   }
 };
 
@@ -49,7 +46,7 @@ var processModifieds = function processModifieds(scope) {
 };
 
 var testChildren = function testChildren(father, scope) {
-  father.children.values.map(function (child) {
+  father.children.map(function (child) {
     if (father.value < child.value) {
       var big = child.value;
       child.value = father.value;
@@ -71,16 +68,19 @@ var changeBigToLast = function changeBigToLast(scope) {
     scope.modifieds.push(scope.root);
     scope.iterations += 1;
   }
-  if (scope.debug) {
-    scope.iterationsAll = scope.iterations;
-  }
 };
 
 var blockChild = function blockChild(child) {
   var father = child.father;
-  if (father !== undefined) {
-    var key = father.children.keys[child.index];
-    delete father.children.values[key];
+  if (father !== undefined && child !== undefined) {
+    var limit = father.children.length;
+    switch (limit) {
+      case 2:
+        father.children = [father.children[child.broder]];
+      case 1:
+        father.children = [];
+      default:
+    }
   }
 };
 
@@ -116,7 +116,6 @@ var main = function main(array) {
     limit: list.length,
     modifieds: [],
     iterations: 0,
-    iterationsAll: 0,
     debug: debug,
     crono: undefined
   };
