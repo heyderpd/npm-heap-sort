@@ -1,7 +1,7 @@
 # h-sort : simple and fast heap-sort
 
-## All process have a avg of 3 mileseconds!!!
-## Using a array of 3.000 itens all process have a avg 100 mileseconds !!!
+## All process have a avg of 2 mileseconds!!!
+## Using a array of 3.000 itens all process have a avg 175 mileseconds !!!
 
 ## I will help if you have any difficulty =)
 Contact me by [github:heyderpd](https://github.com/heyderpd). I'll be glad to help you.
