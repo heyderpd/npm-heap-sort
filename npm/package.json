@@ -1,7 +1,7 @@
 {
   "license": "MIT",
   "name": "h-sort",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "simple and fast heap-sort",
   "main": "index.js",
   "scripts": {},
