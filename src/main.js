@@ -135,6 +135,55 @@ const main = (array, debug = false) => {
   return revertToArray(scope)
 }
 
-const { type, hasProp, length, each, eachVal } = require('pytils')
+/*    ---   */
+const each = (list, func) => {
+  forEachUnify(
+    list,
+    func)
+}
+
+const eachVal = (list, func) => {
+  forEachUnify(
+    list,
+    args => {
+      func(args[1])
+    })
+}
+
+const forEachUnify = (list, func) => {
+  let keyList = undefined
+  const typeList = type(list)
+  switch (typeList) {
+    case 'object':
+      keyList = keys(list)
+    case 'array':
+      forEach(keyList, list, func)
+    default:
+  }
+}
+
+const forEach = (keys, vaules, func) => {
+  let limit
+  if (k === undefined) {
+    limit = vaules.length
+    for (let i=0; i<limit; i++) {
+      func(
+        i,
+        vaules[i])
+    }
+  } else {
+    limit = keys.length
+    for (let i=0; i<limit; i++) {
+      let key = keys[i]
+      func(
+        key,
+        vaules[key])
+    }
+  }
+}
+/*    ---   */
+
+// const { type, hasProp, length, keys, each, eachVal } = require('pytils')
+const { type, hasProp, length, keys } = require('pytils')
 
 module.exports = main
