@@ -6,21 +6,23 @@
  */
 
 const convertObjectArray = array => {
-  each(array,
-    (i, item) => {
-      array[i] = {
+  return array.map(
+    (item, i) =>
+      ({
         index: i,
         value: item,
         father: undefined,
-        children: {}
-      }
-    })
-  return array
+        children: {
+          keys: {},
+          values: []
+        }
+      })
+    )
 }
 
 const initializeChildrens = scope => {
-  each(scope.list,
-    (index, father) => {
+  scope.list.map(
+    (father, index) => {
       index = index *2
       initChild(father, index +1, scope)
       initChild(father, index +2, scope)
@@ -31,7 +33,8 @@ const initChild = (father, index, scope) => {
   const child = scope.list[index]
   if (child !== undefined) {
     child.father = father
-    father.children[child.index] = child
+    father.children.keys[child.index] = father.children.values.length
+    father.children.values.push(child)
   }
 }
 
@@ -47,7 +50,7 @@ const processModifieds = scope => {
 }
 
 const testChildren = (father, scope) => {
-  eachVal(father.children,
+  father.children.values.map(
     child => {
       if (father.value < child.value) {
         const big = child.value
@@ -71,7 +74,6 @@ const changeBigToLast = scope => {
     scope.iterations += 1
   }
   if (scope.debug) {
-    // console.log('=>', scope.iterations -scope.iterationsAll)
     scope.iterationsAll = scope.iterations
   }
 }
@@ -79,7 +81,8 @@ const changeBigToLast = scope => {
 const blockChild = child => {
   const father = child.father
   if (father !== undefined) {
-    delete father.children[child.index]
+    const key = father.children.keys[child.index]
+    delete father.children.values[key]
   }
 }
 
@@ -95,9 +98,8 @@ const doHeap = scope => {
 }
 
 const revertToArray = scope => {
-  each(scope.list,
-    (i, item) => (scope.list[i] = item.value))
-  return scope.list
+  return scope.list.map(
+    item => (item.value))
 }
 
 const main = (array, debug = false) => {
@@ -123,7 +125,7 @@ const main = (array, debug = false) => {
   // initialize children
   initializeChildrens(scope)
   // add all to modified's
-  eachVal(scope.list,
+  scope.list.map(
     item => {
       scope.modifieds.push(item)
     })
@@ -135,55 +137,6 @@ const main = (array, debug = false) => {
   return revertToArray(scope)
 }
 
-/*    ---   */
-const each = (list, func) => {
-  forEachUnify(
-    list,
-    func)
-}
-
-const eachVal = (list, func) => {
-  forEachUnify(
-    list,
-    args => {
-      func(args[1])
-    })
-}
-
-const forEachUnify = (list, func) => {
-  let keyList = undefined
-  const typeList = type(list)
-  switch (typeList) {
-    case 'object':
-      keyList = keys(list)
-    case 'array':
-      forEach(keyList, list, func)
-    default:
-  }
-}
-
-const forEach = (keys, vaules, func) => {
-  let limit
-  if (k === undefined) {
-    limit = vaules.length
-    for (let i=0; i<limit; i++) {
-      func(
-        i,
-        vaules[i])
-    }
-  } else {
-    limit = keys.length
-    for (let i=0; i<limit; i++) {
-      let key = keys[i]
-      func(
-        key,
-        vaules[key])
-    }
-  }
-}
-/*    ---   */
-
-// const { type, hasProp, length, keys, each, eachVal } = require('pytils')
 const { type, hasProp, length, keys } = require('pytils')
 
 module.exports = main

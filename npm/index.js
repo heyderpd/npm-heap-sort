@@ -7,19 +7,21 @@
  */
 
 var convertObjectArray = function convertObjectArray(array) {
-  each(array, function (i, item) {
-    array[i] = {
+  return array.map(function (item, i) {
+    return {
       index: i,
       value: item,
       father: undefined,
-      children: {}
+      children: {
+        keys: {},
+        values: []
+      }
     };
   });
-  return array;
 };
 
 var initializeChildrens = function initializeChildrens(scope) {
-  each(scope.list, function (index, father) {
+  scope.list.map(function (father, index) {
     index = index * 2;
     initChild(father, index + 1, scope);
     initChild(father, index + 2, scope);
@@ -30,7 +32,8 @@ var initChild = function initChild(father, index, scope) {
   var child = scope.list[index];
   if (child !== undefined) {
     child.father = father;
-    father.children[child.index] = child;
+    father.children.keys[child.index] = father.children.values.length;
+    father.children.values.push(child);
   }
 };
 
@@ -46,7 +49,7 @@ var processModifieds = function processModifieds(scope) {
 };
 
 var testChildren = function testChildren(father, scope) {
-  eachVal(father.children, function (child) {
+  father.children.values.map(function (child) {
     if (father.value < child.value) {
       var big = child.value;
       child.value = father.value;
@@ -69,7 +72,6 @@ var changeBigToLast = function changeBigToLast(scope) {
     scope.iterations += 1;
   }
   if (scope.debug) {
-    // console.log('=>', scope.iterations -scope.iterationsAll)
     scope.iterationsAll = scope.iterations;
   }
 };
@@ -77,7 +79,8 @@ var changeBigToLast = function changeBigToLast(scope) {
 var blockChild = function blockChild(child) {
   var father = child.father;
   if (father !== undefined) {
-    delete father.children[child.index];
+    var key = father.children.keys[child.index];
+    delete father.children.values[key];
   }
 };
 
@@ -93,10 +96,9 @@ var doHeap = function doHeap(scope) {
 };
 
 var revertToArray = function revertToArray(scope) {
-  each(scope.list, function (i, item) {
-    return scope.list[i] = item.value;
+  return scope.list.map(function (item) {
+    return item.value;
   });
-  return scope.list;
 };
 
 var main = function main(array) {
@@ -122,7 +124,7 @@ var main = function main(array) {
   // initialize children
   initializeChildrens(scope);
   // add all to modified's
-  eachVal(scope.list, function (item) {
+  scope.list.map(function (item) {
     scope.modifieds.push(item);
   });
   // order list processing modified's
@@ -137,7 +139,6 @@ var _require = require('pytils'),
     type = _require.type,
     hasProp = _require.hasProp,
     length = _require.length,
-    each = _require.each,
-    eachVal = _require.eachVal;
+    keys = _require.keys;
 
 module.exports = main;
